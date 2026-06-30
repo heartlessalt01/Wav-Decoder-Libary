@@ -442,4 +442,5 @@ Commercial use includes:
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
 Author:Heartless
+
 Year:2026
