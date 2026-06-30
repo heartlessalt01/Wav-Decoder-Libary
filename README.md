@@ -54,6 +54,7 @@ It supports both memory-based decoding and custom streaming I/O.
 # Files
 
 ```
+bootsound.wav
 wav_decoder.h
 wav_decoder.c
 play_wav.exe
@@ -85,6 +86,8 @@ to your build system.
 No standard library is required.
 
 ---
+
+#Note when compiling use MSYS UCRT64
 
 # Basic Usage
 
