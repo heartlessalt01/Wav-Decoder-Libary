@@ -1,6 +1,6 @@
 /*
  * ========================================================================
- * FAT32 Driver Library (Bare-Metal / Kernel Level)
+ * Wav Decoder (Bare-Metal / Kernel Level)
  * ========================================================================
  *
  * Copyright © 2026 Heartless. All rights reserved.
