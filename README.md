@@ -1,60 +1,60 @@
 # WAV Decoder Library
 
-A lightweight WAV decoder written in C.
+A lightweight, dependency-free WAV decoder written in C.
 
 Designed for:
 
-- Bare-metal systems
-- Operating system kernels
-- Bootloaders
-- Embedded systems
-- Desktop applications
+* Bare-metal systems
+* Operating system kernels
+* Bootloaders
+* Embedded systems
+* Desktop applications
 
-The library does not require libc and includes its own basic memory functions.
+The library does not require libc and includes its own basic memory handling functions.
 
-It supports both memory-based decoding and custom streaming I/O.
+It supports memory-based decoding and custom streaming I/O backends.
 
 ---
 
 # Features
 
-- RIFF WAV support
-- RIFX big-endian WAV support
-- RF64 WAV support
-- Memory WAV loading
-- Custom file/device streaming
-- PCM decoding
-  - 8-bit
-  - 16-bit
-  - 24-bit
-  - 32-bit
-- IMA ADPCM decoding
-- Microsoft ADPCM decoding
-- WAVE_FORMAT_EXTENSIBLE PCM
-- PCM frame reading
-- PCM frame seeking
-- 16-bit output
-- 32-bit output
+* RIFF WAV support
+* RIFX big-endian WAV support
+* RF64 WAV support
+* Memory-based WAV loading
+* Custom file/device streaming
+* PCM decoding
+
+  * 8-bit
+  * 16-bit
+  * 24-bit
+  * 32-bit
+* IMA ADPCM decoding
+* Microsoft ADPCM decoding
+* WAVE_FORMAT_EXTENSIBLE PCM support
+* PCM frame reading
+* PCM frame seeking
+* 16-bit output conversion
+* 32-bit output conversion
 
 ---
 
 # Supported Formats
 
-| Format | Support |
-|---|---|
-| PCM | ✅ |
-| IMA ADPCM | ✅ |
-| MS ADPCM | ✅ |
-| WAVE_FORMAT_EXTENSIBLE | ✅ |
-| MP3 | ❌ |
-| OGG | ❌ |
+| Format                 | Support |
+| ---------------------- | ------- |
+| PCM                    | ✅       |
+| IMA ADPCM              | ✅       |
+| Microsoft ADPCM        | ✅       |
+| WAVE_FORMAT_EXTENSIBLE | ✅       |
+| MP3                    | ❌       |
+| OGG                    | ❌       |
 
 ---
 
 # Files
 
 ```
-bootsound.wav
 wav_decoder.h
 wav_decoder.c
 play_wav.exe
@@ -72,9 +72,7 @@ Example:
 gcc wav_decoder.c play_wav.c -o play_wav.exe
 ```
 
-For kernel or bare-metal projects:
-
-Add:
+For kernel or bare-metal projects, add:
 
 ```
 wav_decoder.c
@@ -85,9 +83,9 @@ to your build system.
 
 No standard library is required.
 
----
+When compiling on Windows, use MSYS2 UCRT64.
 
-#Note when compiling use MSYS UCRT64
+---
 
 # Basic Usage
 
@@ -101,28 +99,17 @@ Include the header:
 
 # Opening WAV From Memory
 
-Use `wav_open_memory()` when the entire WAV file is already loaded.
+Use `wav_open_memory()` when the complete WAV file is already loaded.
 
 Example:
 
 ```c
 #include "wav_decoder.h"
 
-
 wav_decoder decoder;
-
 
 unsigned char* wavData;
 unsigned long wavSize;
-
-
-/*
-    Load WAV file into memory here
-
-    wavData = file buffer
-    wavSize = file size
-*/
-
 
 wav_result result =
 wav_open_memory(
@@ -131,10 +118,8 @@ wav_open_memory(
     wavSize
 );
 
-
 if (result != WAV_SUCCESS)
 {
-    // Failed to open WAV
     return;
 }
 ```
@@ -148,7 +133,6 @@ if (result != WAV_SUCCESS)
 ```c
 wav_int16 samples[4096];
 
-
 wav_uint64 framesRead =
 wav_read_pcm_frames_s16(
     &decoder,
@@ -157,16 +141,15 @@ wav_read_pcm_frames_s16(
 );
 ```
 
-The output is interleaved.
+Output is interleaved.
 
-Example stereo:
+Example stereo layout:
 
 ```
 Left
 Right
 Left
 Right
-...
 ```
 
 ---
@@ -175,7 +158,6 @@ Right
 
 ```c
 wav_int32 samples[4096];
-
 
 wav_uint64 framesRead =
 wav_read_pcm_frames_s32(
@@ -189,16 +171,15 @@ wav_read_pcm_frames_s32(
 
 # Custom Streaming I/O
 
-The decoder supports reading from custom storage.
+The decoder supports custom storage backends.
 
 Useful for:
 
-- FAT32 drivers
-- HDD/SSD drivers
-- ROM storage
-- Embedded devices
-- Kernel file systems
-
+* FAT32 drivers
+* HDD/SSD drivers
+* ROM storage
+* Embedded devices
+* Kernel file systems
 
 Example:
 
@@ -210,28 +191,15 @@ wav_bool my_reader(
     wav_size_t bytesToRead
 )
 {
-
-    /*
-        Read bytes here
-        from your storage device
-    */
-
-
     return WAV_TRUE;
 }
 
-
-
 wav_io io;
-
 
 io.userData = myDevice;
 io.read = my_reader;
 
-
-
 wav_decoder decoder;
-
 
 wav_result result =
 wav_init_io(
@@ -280,15 +248,12 @@ wav_uninit(
 ```c
 #include "wav_decoder.h"
 
-
 void decode_audio(
     const void* wav,
     wav_uint64 size
 )
 {
-
     wav_decoder decoder;
-
 
     if (wav_open_memory(
             &decoder,
@@ -299,15 +264,10 @@ void decode_audio(
         return;
     }
 
-
-
     wav_int16 buffer[4096];
-
-
 
     while (1)
     {
-
         wav_uint64 frames =
         wav_read_pcm_frames_s16(
             &decoder,
@@ -315,19 +275,9 @@ void decode_audio(
             buffer
         );
 
-
         if (frames == 0)
             break;
-
-
-
-        /*
-            Send PCM samples
-            to your audio device here
-        */
     }
-
-
 
     wav_uninit(&decoder);
 }
@@ -364,19 +314,18 @@ The decoder is designed to work without an operating system.
 
 Example uses:
 
-- Kernel audio drivers
-- UEFI applications
-- Custom file systems
-- Embedded firmware
+* Kernel audio drivers
+* UEFI applications
+* Custom file systems
+* Embedded firmware
 
-
-A storage backend can be connected using:
+Storage backends can be connected using:
 
 ```c
 wav_io
 ```
 
-allowing the decoder to read from any device.
+allowing the decoder to read from any storage device.
 
 ---
 
@@ -392,8 +341,7 @@ wav_result wav_open_memory(
 );
 ```
 
-Open WAV data stored in memory.
-
+Opens WAV data stored in memory.
 
 ---
 
@@ -405,7 +353,7 @@ wav_result wav_init_io(
 );
 ```
 
-Initialize decoder with custom streaming input.
+Initializes the decoder using custom streaming input.
 
 ---
 
@@ -420,7 +368,6 @@ wav_uint64 wav_read_pcm_frames_s16(
 ```
 
 Reads signed 16-bit PCM frames.
-
 
 ---
 
@@ -461,6 +408,15 @@ Releases decoder state.
 
 ---
 
+# Limitations
+
+* Does not provide audio output drivers
+* Does not resample audio
+* Does not change sample rates
+* Does not support MP3 or OGG decoding
+
+---
+
 # License
 
 Copyright © 2026 Heartless
@@ -469,28 +425,21 @@ All rights reserved.
 
 Permission is granted to use, copy, and modify this software for:
 
-- Personal projects
-- Educational projects
-- Research projects
-- Private non-commercial use
-
+* Personal projects
+* Educational projects
+* Research projects
+* Private non-commercial use
 
 Commercial use requires explicit written permission from the author.
 
 Commercial use includes:
 
-- Selling software containing this library
-- Including this library in paid products
-- Using this library in commercial services
-- Redistributing this library commercially
-
+* Selling software containing this library
+* Including this library in paid products
+* Using this library in commercial services
+* Redistributing this library commercially
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
-Author:
-
-Heartless
-
-Year:
-
-2026
+Author:Heartless
+Year:2026
